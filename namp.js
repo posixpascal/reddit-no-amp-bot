@@ -35,15 +35,17 @@ postStream.login(streamConf).then(() => {
 
 
 postStream.on('new', (posts) => {
-    posts.filter(isAMPlified).forEach((post) => {
+    posts.forEach((post) => {
         deAMPlify(post.data.url).then((realUrl) => {
             // post as comment here.
             const comment = template("./comment_template.md", {
                 url: realUrl
             });
-
+            console.log(post.data.url);
             console.log(comment);
             //reddit.getSubmission(post.data.id).reply(comment);
+        }, () => {
+            // console.log("Submission is not a real amp url");
         });
     });
 });
