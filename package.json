@@ -1,0 +1,18 @@
+{
+    "name": "namp",
+    "version": "1.0.0",
+    "description": "A reddit bot which removes AMP links",
+    "author": "Pascal Raszyk <posixpascal@googlemail.com>",
+    "main": "namp.js",
+    "scripts": {
+        "run": "node namp.js"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "cheerio": "^1.0.0-rc.2",
+        "dotenv": "^4.0.0",
+        "reddit-stream": "^1.2.0",
+        "request": "^2.83.0",
+        "snoowrap": "^1.14.2"
+    }
+}
