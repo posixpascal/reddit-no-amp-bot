@@ -1,4 +1,4 @@
-Non-AMP URL: %url
+No-AMP URL: %url
 
 Beep. Bob. I'm a bot. 
 

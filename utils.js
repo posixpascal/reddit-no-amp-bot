@@ -1,42 +1,31 @@
-const request = require("request");
-const cheerio = require("cheerio");
 const fs = require("fs");
+const blacklist = fs.readFileSync("blacklist.txt", "utf8").toLowerCase().split("\n");
 
-const isAMPmetadata = (metadata) => {
-    return typeof metadata["@type"] !== "undefined" && metadata["@type"] === "NewsArticle";
+/**
+ * Checks if a hostname is blacklisted
+ */
+module.exports.isBlacklisted = (hostname) => {
+    hostname = hostname.toLowerCase()
+    for (let i = 0; i < blacklist.length; i++) {
+        const domain = blacklist[i].toLowerCase();
+        if (domain === hostname) {
+            return true;
+        }
+    }
+    return false;
 }
 
-const extractUrl = ($) => {
-    return new Promise((resolve, reject) => {
-        // by metadata
-        const ldMetadata = $("script[type='application/ld+json']");
-        ldMetadata.each((index, element) => {
-            try {
-                const contents = JSON.parse($(element).html());
-                if (isAMPmetadata(contents) && contents.url) {
-                    return resolve(contents.url);
-                }
-            } catch (e) {
-                return reject("Could not parse metadata");
-            }
-        });
-
-        // by og:metatag:
-        const ogMetaTag = $("meta[property='og:url']");
-        if (ogMetatag) {
-            return resolve(ogMetatag.attr("content"));
-        }
-
-        // by canonical url:
-        const canonicalLinkTag = $("link[rel='canonical']")
-        if (canonicalLinkTag) {
-            return resolve(canonicalLinkTag.attr("href"));
-        }
-
-        reject("No option to resolve amp");
-    });
+/**
+ * Quick and dirty check to ensure the URl does not point to an image
+ */
+module.exports.hasImageExtension = (url) => {
+    const ext = url.substring(url.length - 4).toLowerCase();
+    return ext === ".png" || ext === "jpeg" || ext === ".jpg" || ext === "gif";
 }
 
+/**
+ * Load markdown file and substitute a few variables
+ */
 module.exports.template = (file, opts) => {
     let src = fs.readFileSync(file, "utf8");
     for (let key in opts) {
@@ -44,27 +33,4 @@ module.exports.template = (file, opts) => {
     }
 
     return src;
-}
-
-module.exports.deAMPlify = (url, cb) => {
-    let isAMP = false;
-    return new Promise((resolve, reject) => {
-        request(url, (error, response, body) => {
-            const $ = cheerio.load(body);
-
-            if (typeof $("html").attr("amp") !== "undefined" || typeof $("html").attr("⚡") !== "undefined") {
-                extractUrl(body).then((url) => {
-                    resolve(url);
-                    isAMP = true;
-                }, (err) => {
-                    reject(err);
-                    console.log("Take a look at this: ", url);
-                });
-            }
-
-            if (!isAMP) {
-                reject("No amp url");
-            }
-        });
-    });
 }

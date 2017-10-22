@@ -3,9 +3,9 @@
     "version": "1.0.0",
     "description": "A reddit bot which removes AMP links",
     "author": "Pascal Raszyk <posixpascal@googlemail.com>",
-    "main": "namp.js",
+    "main": "no-amp-bot.js",
     "scripts": {
-        "run": "node namp.js"
+        "run": "node no-amp-bot.js"
     },
     "license": "MIT",
     "dependencies": {

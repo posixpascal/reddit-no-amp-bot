@@ -1,9 +1,13 @@
 require('dotenv').config()
 
 const VERSION = require("./package.json").version;
-const { template, isAMPlified, deAMPlify } = require("./utils.js");
+const { isBlacklisted, hasImageExtension, template } = require("./utils.js");
+const { removeAMP } = require("./amp.js");
+
 const RedditStream = require("reddit-stream");
 const snoowrap = require("snoowrap");
+const urlParser = require("url").parse;
+
 
 const streamConf = {
     userAgent: `snoowrap/${VERSION}`,
@@ -35,17 +39,21 @@ postStream.login(streamConf).then(() => {
 
 
 postStream.on('new', (posts) => {
-    posts.forEach((post) => {
-        deAMPlify(post.data.url).then((realUrl) => {
-            // post as comment here.
-            const comment = template("./comment_template.md", {
-                url: realUrl
+    posts
+        .filter(post => !post.data.over_18)
+        .filter(post => !hasImageExtension(post.data.url))
+        .filter(post => !isBlacklisted(urlParser(post.data.url).hostname))
+        .forEach((post) => {
+            removeAMP(post.data.url).then((url) => {
+                const comment = template("./comment_template.md", {
+                    url
+                });
+                console.log(comment);
+                reddit.getSubmission(post.data.id).reply(comment);
+            }).catch((e) => {
+                // no amp url detected,
+                // maybe we can use this for kind of like
+                // statistics? 98% of urls are not using AMP on reddit? idk.
             });
-            console.log(post.data.url);
-            console.log(comment);
-            //reddit.getSubmission(post.data.id).reply(comment);
-        }, () => {
-            // console.log("Submission is not a real amp url");
         });
-    });
 });
