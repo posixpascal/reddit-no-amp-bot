@@ -5,7 +5,7 @@
     "author": "Pascal Raszyk <posixpascal@googlemail.com>",
     "main": "no-amp-bot.js",
     "scripts": {
-        "run": "node no-amp-bot.js"
+        "run": "node_modules/.bin/nodemon no-amp-bot.js"
     },
     "license": "MIT",
     "dependencies": {
@@ -14,5 +14,8 @@
         "reddit-stream": "^1.2.0",
         "request": "^2.83.0",
         "snoowrap": "^1.14.2"
+    },
+    "devDependencies": {
+        "nodemon": "^1.12.1"
     }
 }
